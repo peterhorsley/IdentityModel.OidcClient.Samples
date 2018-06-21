@@ -14,13 +14,17 @@ void UnitySendMessage( const char * className, const char * methodName, const ch
     if (!url)
         return NO;
 
-    const char * queryString = [url.query UTF8String];
-    NSString *nsQueryString = [NSString stringWithUTF8String:queryString];
-
-    if ([url.scheme isEqualToString:@"com.identityserver.sample"]) {
-        if ([url.host isEqualToString:@"auth"]) {
-            NSLog(@"received auth reply");
-            UnitySendMessage("SignInCanvas", "OnAuthReply", queryString);
+    if ([url.scheme isEqualToString:@"io.identitymodel.native"]) {
+        if ([url.host isEqualToString:@"callback"]) {
+            if (url.query) {
+                const char * queryString = [url.query UTF8String];
+                NSString *nsQueryString = [NSString stringWithUTF8String:queryString];                
+                NSLog(@"received auth reply with query string");
+                UnitySendMessage("SignInCanvas", "OnAuthReply", queryString);
+            } else {
+                NSLog(@"received auth reply with no query string");
+                UnitySendMessage("SignInCanvas", "OnAuthReply", "");
+            }
         } else {
             NSLog(@"received unexpected url host: [%@]", url.host);
         }
